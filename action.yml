@@ -1,14 +1,16 @@
-name: "Action Node Blanky"
-description: "An action that doesn't really do anything. Just a boilerplate template."
+name: "git sync branch"
+description: "Sync branches in a git repository with the goal of having the same commit history between the two."
 author: "levibostian"
 inputs: # https://docs.github.com/en/actions/creating-actions/metadata-syntax-for-github-actions#inputs
-  text:
-    description: "Text to output in the action, prepended by Text:"
-    default: "yo"
+  ahead:
+    description: "Branch that is currently ahead of the other in commit history"
+    required: true
+  behind:
+    description: "Branch that is currently behind of the other and needs to be synced."
     required: true
 runs:
-  using: "node12"
+  using: "node16"
   main: "dist/index.js"
 branding:
-  icon: 'award'  
-  color: 'green'
+  icon: 'refresh-cw'  
+  color: 'yellow'

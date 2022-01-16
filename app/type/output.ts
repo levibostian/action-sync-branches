@@ -1,3 +1,3 @@
-export interface Output {
-  text: string
-}
+// export interface Output {
+//   text: string
+// }

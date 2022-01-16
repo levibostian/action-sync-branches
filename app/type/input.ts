@@ -1,3 +1,4 @@
 export interface Input {
-  text: string
+  aheadBranchName: string
+  behindBranchName: string
 }

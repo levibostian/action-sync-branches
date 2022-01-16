@@ -1,11 +1,8 @@
 import { getInput } from "./input"
-import { getOutputText, setOutput } from "./output"
-import { Output } from "./type/output"
+import * as git from "./git"
 
 const input = getInput()
 
-const output: Output = {
-  text: getOutputText(input.text)
+;async () => {
+  await git.rebaseSyncBranches(input.behindBranchName, input.aheadBranchName)
 }
-
-setOutput(output)
