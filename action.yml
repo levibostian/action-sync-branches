@@ -21,18 +21,16 @@ runs:
     - name: Sync branches via rebase 
       id: checkout
       run: |
-        git switch ${{ inputs.ahead }} || (echo "${{ inputs.ahead }} does not exist. Exiting" && exit 0)
+        git switch ${{ inputs.ahead }} || exit 0
         git pull 
-        git switch ${{ inputs.behind }} || (echo "${{ inputs.behind }} does not exist. Exiting" && exit 0)
+        git switch ${{ inputs.behind }} || exit 0
         git pull 
 
         git rebase ${{ inputs.ahead }}
 
-        # Compare the two branches together. If there are not different commits between each other, the rebase was successful and we can push. Else, exit and fail. 
-        # You will then have to fix the issue yourself manually. 
         if [[ $( git log ${{ inputs.behind }}..${{ inputs.ahead }} ) ]]; then echo "Rebase not successful. Commits not the same between the two branches" && exit 1; else echo "Rebase successful"; fi 
 
-        git push
+        git push 
       shell: bash 
 
 branding:
