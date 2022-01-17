@@ -3,6 +3,7 @@ import * as core from "@actions/core"
 
 export const getInput = (): Input => {
   return {
-    text: core.getInput("text")
+    aheadBranchName: core.getInput("ahead"),
+    behindBranchName: core.getInput("behind")
   }
 }
