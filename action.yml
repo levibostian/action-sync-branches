@@ -19,7 +19,7 @@ runs:
       with: 
         fetch-depth: 0
     - name: Sync branches via rebase 
-      run: ${{ github.action_path }}/action.sh
+      run: ${{ github.action_path }}/action.sh ${{ inputs.ahead }} ${{ inputs.behind }}
       shell: bash 
 
 branding:
