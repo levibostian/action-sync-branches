@@ -28,3 +28,5 @@ jobs:
         with:
           behind: develop-synced
           ahead: develop
+        env:
+          GITHUB_TOKEN: ${{ secrets.BOT_PUSH_TOKEN }}
