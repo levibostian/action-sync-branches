@@ -12,8 +12,26 @@ inputs: # https://docs.github.com/en/actions/creating-actions/metadata-syntax-fo
     description: "Personal access token for GitHub for user account that has push access to repository."
     required: true
 runs:
-  using: "node16"
-  main: "dist/index.js"
+  using: "composite"
+  steps:
+    - name: Fetch all history for all tags and branches
+      uses: actions/checkout@v2
+      with:
+       fetch-depth: 0
+    - name: Checkout behind branch 
+      uses: actions/checkout@v2
+      with: 
+        ref: ${{ inputs.behind }}
+    - name: Sync branches via rebase 
+      run: git rebase ${{ inputs.ahead }}
+      shell: bash  
+    # Compare the two branches together. If there are not different commits between each other, the rebase was successful and we can push. Else, exit and fail. 
+    # You will then have to fix the issue yourself manually. 
+    - name: Push changes
+      shell: bash 
+      run: |
+        if [[ $( git log ${{ inputs.behind }}..${{ inputs.ahead }} ) ]]; then echo "Rebase not successful. Commits not the same between the two branches" && exit 1; else echo "Rebase successful"; fi 
+        git push
 branding:
   icon: 'refresh-cw'  
   color: 'yellow'
