@@ -14,13 +14,15 @@ inputs: # https://docs.github.com/en/actions/creating-actions/metadata-syntax-fo
 runs:
   using: "composite"
   steps:
-    - name: Fetch all history for all tags and branches
-      uses: actions/checkout@v2
-      with:
-       fetch-depth: 0
-    - name: Checkout behind branch 
+    - name: Checkout and pull ahead branch 
       uses: actions/checkout@v2
       with: 
+        fetch-depth: 0
+        ref: ${{ inputs.ahead }}
+    - name: Checkout and pull behind branch 
+      uses: actions/checkout@v2
+      with: 
+        fetch-depth: 0
         ref: ${{ inputs.behind }}
     - name: Sync branches via rebase 
       run: git rebase ${{ inputs.ahead }}
