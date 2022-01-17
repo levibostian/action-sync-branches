@@ -9,11 +9,6 @@
     "prepare": "husky install"
   },
   "license": "MIT",
-  "husky": {
-    "hooks": {
-      "pre-commit": "npm run lint && lint-staged"
-    }
-  },
   "lint-staged": {
     "*.{ts,js,json,css,md}": [
       "npm run format"

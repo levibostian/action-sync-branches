@@ -33,7 +33,7 @@ export const rebaseSyncBranches = async (behind: string, ahead: string): Promise
   const needToRebase = await areBranchesOutOfSync(behind, ahead)
   if (!needToRebase) {
     log.message("Branches are identical. No need to sync. Exiting.")
-    return 
+    return
   }
 
   const { stdout } = await execCommand(`git rebase ${ahead}`)
