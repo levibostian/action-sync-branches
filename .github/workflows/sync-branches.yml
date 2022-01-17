@@ -7,6 +7,7 @@ jobs:
     name: Test action runs on Linux 
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v2
       # Thanks: https://github.com/actions/typescript-action/blob/b4f07da86601110b682c6f45ff575f5fbd0f8cdf/.github/workflows/test.yml#L18      
       - name: Test action syncs 
         uses: ./ 
@@ -18,6 +19,7 @@ jobs:
     name: Test action runs on Mac 
     runs-on: macos-latest
     steps:
+      - uses: actions/checkout@v2
       # Thanks: https://github.com/actions/typescript-action/blob/b4f07da86601110b682c6f45ff575f5fbd0f8cdf/.github/workflows/test.yml#L18      
       - name: Test action syncs 
         uses: ./ 
@@ -29,6 +31,7 @@ jobs:
     name: Test action runs on Windows  
     runs-on: windows-latest
     steps:
+      - uses: actions/checkout@v2
       # Thanks: https://github.com/actions/typescript-action/blob/b4f07da86601110b682c6f45ff575f5fbd0f8cdf/.github/workflows/test.yml#L18      
       - name: Test action syncs 
         uses: ./ 
