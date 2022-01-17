@@ -1,17 +1,6 @@
 AHEAD="$1"
 BEHIND="$2"
 
-checkout_and_pull $AHEAD 
-checkout_and_pull $BEHIND
-
-git rebase $AHEAD
-
-assert_rebase_successful
-
-git push 
-
-
-
 checkout_and_pull() {
     # if git switch unsuccessful, it's because the branch does not exist. exit 0 indicating that the action will simply ignore request. 
     if git switch $1; then
@@ -34,3 +23,12 @@ assert_rebase_successful() {
         echo "Rebase successful"
     fi 
 }
+
+checkout_and_pull $AHEAD 
+checkout_and_pull $BEHIND
+
+git rebase $AHEAD
+
+assert_rebase_successful
+
+git push 
