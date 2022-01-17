@@ -14,16 +14,13 @@ inputs: # https://docs.github.com/en/actions/creating-actions/metadata-syntax-fo
 runs:
   using: "composite"
   steps:
-    - name: Checkout and pull ahead branch 
+    - name: Checkout project code 
       uses: actions/checkout@v2
-      with: 
-        fetch-depth: 0
-        ref: ${{ inputs.ahead }}
-    - name: Checkout and pull behind branch 
-      uses: actions/checkout@v2
-      with: 
-        fetch-depth: 0
-        ref: ${{ inputs.behind }}
+    - name: Checkout and pull branches 
+      run: |
+        git switch ${{ inputs.ahead }} && git pull 
+        git switch ${{ inputs.behind }} && git pull 
+      shell: bash 
     - name: Sync branches via rebase 
       run: git rebase ${{ inputs.ahead }}
       shell: bash  
