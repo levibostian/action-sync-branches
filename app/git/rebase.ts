@@ -1,6 +1,15 @@
 import { checkoutAndPull } from "./pull"
 import { execCommand } from "./exec"
 import { push } from "./push"
+import * as log from "../log"
+
+export const areBranchesOutOfSync = async (behind: string, ahead: string): Promise<boolean> => {
+  // Compare the git commit history between branches https://stackoverflow.com/a/13965448
+  const { stdout } = await execCommand(`git log ${behind}..${ahead}`)
+  const noDifferenceBetweenBranches = stdout == ""
+
+  return !noDifferenceBetweenBranches
+}
 
 export const checkRebaseSuccessful = async (
   rebaseStdout: string,
@@ -12,16 +21,20 @@ export const checkRebaseSuccessful = async (
 
   const successfulRebaseResult = rebaseStdout.startsWith("Successfully rebased and updated")
 
-  // Compare the git commit history between branches https://stackoverflow.com/a/13965448
-  const { stdout } = await execCommand(`git log ${behind}..${ahead}`)
-  const noDifferenceBetweenBranches = stdout == ""
+  const branchesOutOfSync = await areBranchesOutOfSync(behind, ahead)
 
-  return successfulRebaseResult && noDifferenceBetweenBranches
+  return successfulRebaseResult && !branchesOutOfSync
 }
 
 export const rebaseSyncBranches = async (behind: string, ahead: string): Promise<void> => {
   await checkoutAndPull(ahead)
   await checkoutAndPull(behind)
+
+  const needToRebase = await areBranchesOutOfSync(behind, ahead)
+  if (!needToRebase) {
+    log.message("Branches are identical. No need to sync. Exiting.")
+    return 
+  }
 
   const { stdout } = await execCommand(`git rebase ${ahead}`)
 
