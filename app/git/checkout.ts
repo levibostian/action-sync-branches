@@ -5,7 +5,10 @@ export const checkout = async (branch: string, repoUrl: string): Promise<void> =
   const doesBranchExistLocally = stdout != ""
 
   if (!doesBranchExistLocally) {
-    await execCommand(`git fetch ${branch}`, repoUrl)
+    await execCommand(
+      `git fetch ${branch} ${repoUrl} +refs/heads/${branch}:refs/heads/${branch}`,
+      ""
+    )
   }
 
   await execCommand(`git checkout ${branch}`, "")
