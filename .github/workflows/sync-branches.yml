@@ -3,22 +3,32 @@ name: Sync branches
 on: [push]
 
 jobs:
-  sync:
-    name: Run action to test sync 
+  sync-linux:
+    name: Test action runs on Linux 
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - name: Read .nvmrc
-        run: echo ::set-output name=NODE_VERSION::$(cat .nvmrc)
-        id: nvm
-      - name: Setup node
-        uses: actions/setup-node@v2-beta
+      # Thanks: https://github.com/actions/typescript-action/blob/b4f07da86601110b682c6f45ff575f5fbd0f8cdf/.github/workflows/test.yml#L18      
+      - name: Test action syncs 
+        uses: ./ 
         with:
-          node-version: '${{ steps.nvm.outputs.NODE_VERSION }}'
-      - name: Install dependencies
-        run: npm ci   
-      - name: Test can compile action 
-        run: rm -rf dist/ && npm run compile
+          behind: develop-synced
+          ahead: develop
+          githubToken: ${{ secrets.BOT_PUSH_TOKEN }}
+  sync-mac:
+    name: Test action runs on Mac 
+    runs-on: macos-latest
+    steps:
+      # Thanks: https://github.com/actions/typescript-action/blob/b4f07da86601110b682c6f45ff575f5fbd0f8cdf/.github/workflows/test.yml#L18      
+      - name: Test action syncs 
+        uses: ./ 
+        with:
+          behind: develop-synced
+          ahead: develop
+          githubToken: ${{ secrets.BOT_PUSH_TOKEN }}
+  sync-windows:
+    name: Test action runs on Windows  
+    runs-on: windows-latest
+    steps:
       # Thanks: https://github.com/actions/typescript-action/blob/b4f07da86601110b682c6f45ff575f5fbd0f8cdf/.github/workflows/test.yml#L18      
       - name: Test action syncs 
         uses: ./ 
