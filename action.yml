@@ -14,27 +14,27 @@ inputs: # https://docs.github.com/en/actions/creating-actions/metadata-syntax-fo
 runs:
   using: "composite"
   steps:
-    - name: Checkout project code 
+    - name: Checkout all branches and commits history 
       uses: actions/checkout@v2
       with: 
         fetch-depth: 0
-    - name: Checkout and pull branches 
-      run: |
-        git switch ${{ inputs.ahead }} || (echo "${{ inputs.ahead }} does not exist. Exiting" && exit 1)
-        git pull 
-        git switch ${{ inputs.behind }} || (echo "${{ inputs.behind }} does not exist. Exiting" && exit 1)
-        git pull 
-      shell: bash 
     - name: Sync branches via rebase 
-      run: git rebase ${{ inputs.ahead }}
-      shell: bash  
-    # Compare the two branches together. If there are not different commits between each other, the rebase was successful and we can push. Else, exit and fail. 
-    # You will then have to fix the issue yourself manually. 
-    - name: Push changes
-      shell: bash 
+      id: checkout
       run: |
+        git switch ${{ inputs.ahead }} || (echo "${{ inputs.ahead }} does not exist. Exiting" && exit 0)
+        git pull 
+        git switch ${{ inputs.behind }} || (echo "${{ inputs.behind }} does not exist. Exiting" && exit 0)
+        git pull 
+
+        git rebase ${{ inputs.ahead }}
+
+        # Compare the two branches together. If there are not different commits between each other, the rebase was successful and we can push. Else, exit and fail. 
+        # You will then have to fix the issue yourself manually. 
         if [[ $( git log ${{ inputs.behind }}..${{ inputs.ahead }} ) ]]; then echo "Rebase not successful. Commits not the same between the two branches" && exit 1; else echo "Rebase successful"; fi 
+
         git push
+      shell: bash 
+
 branding:
   icon: 'refresh-cw'  
   color: 'yellow'
