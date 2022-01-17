@@ -1,41 +1,28 @@
-name: Sync branches 
+name: Sync release branches with develop
 
 on: [push]
 
 jobs:
-  sync-linux:
-    name: Test action runs on Linux 
+  sync-branches:
+    name: Sync branches 
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      # Thanks: https://github.com/actions/typescript-action/blob/b4f07da86601110b682c6f45ff575f5fbd0f8cdf/.github/workflows/test.yml#L18      
-      - name: Test action syncs 
+      - name: Sync develop and alpha
         uses: ./ 
         with:
-          behind: develop-synced
-          ahead: develop
+          behind: develop
+          ahead: alpha 
           githubToken: ${{ secrets.BOT_PUSH_TOKEN }}
-  sync-mac:
-    name: Test action runs on Mac 
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v2
-      # Thanks: https://github.com/actions/typescript-action/blob/b4f07da86601110b682c6f45ff575f5fbd0f8cdf/.github/workflows/test.yml#L18      
-      - name: Test action syncs 
+      - name: Sync develop and beta
         uses: ./ 
         with:
-          behind: develop-synced
-          ahead: develop
+          behind: develop
+          ahead: beta 
           githubToken: ${{ secrets.BOT_PUSH_TOKEN }}
-  sync-windows:
-    name: Test action runs on Windows  
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v2
-      # Thanks: https://github.com/actions/typescript-action/blob/b4f07da86601110b682c6f45ff575f5fbd0f8cdf/.github/workflows/test.yml#L18      
-      - name: Test action syncs 
+      - name: Sync develop and main
         uses: ./ 
         with:
-          behind: develop-synced
-          ahead: develop
+          behind: develop
+          ahead: main 
           githubToken: ${{ secrets.BOT_PUSH_TOKEN }}
