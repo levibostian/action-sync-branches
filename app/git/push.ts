@@ -1,5 +1,8 @@
 import { execCommand } from "./exec"
 
-export const push = async (branch: string): Promise<{ stdout: string; stderr: string }> => {
-  return execCommand(`git push ${branch}`)
+export const push = async (
+  branch: string,
+  repoUrl: string
+): Promise<{ stdout: string; stderr: string }> => {
+  return execCommand(`git push ${branch}`, repoUrl)
 }

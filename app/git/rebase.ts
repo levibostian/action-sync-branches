@@ -5,7 +5,7 @@ import * as log from "../log"
 
 export const areBranchesOutOfSync = async (behind: string, ahead: string): Promise<boolean> => {
   // Compare the git commit history between branches https://stackoverflow.com/a/13965448
-  const { stdout } = await execCommand(`git log ${behind}..${ahead}`)
+  const { stdout } = await execCommand(`git log ${behind}..${ahead}`, "")
   const noDifferenceBetweenBranches = stdout == ""
 
   return !noDifferenceBetweenBranches
@@ -26,9 +26,13 @@ export const checkRebaseSuccessful = async (
   return successfulRebaseResult && !branchesOutOfSync
 }
 
-export const rebaseSyncBranches = async (behind: string, ahead: string): Promise<void> => {
-  await checkoutAndPull(ahead)
-  await checkoutAndPull(behind)
+export const rebaseSyncBranches = async (
+  behind: string,
+  ahead: string,
+  repoUrl: string
+): Promise<void> => {
+  await checkoutAndPull(ahead, repoUrl)
+  await checkoutAndPull(behind, repoUrl)
 
   const needToRebase = await areBranchesOutOfSync(behind, ahead)
   if (!needToRebase) {
@@ -36,7 +40,7 @@ export const rebaseSyncBranches = async (behind: string, ahead: string): Promise
     return
   }
 
-  const { stdout } = await execCommand(`git rebase ${ahead}`)
+  const { stdout } = await execCommand(`git rebase ${ahead}`, "")
 
   const isRebaseSuccessful = await checkRebaseSuccessful(stdout, behind, ahead)
 
@@ -46,7 +50,7 @@ export const rebaseSyncBranches = async (behind: string, ahead: string): Promise
     )
   }
 
-  await push(behind)
+  await push(behind, repoUrl)
 
   return
 }
