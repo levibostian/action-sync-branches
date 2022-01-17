@@ -1,7 +1,7 @@
 import { getInput } from "./input"
 import * as git from "./git"
 
-export const input = getInput()
-;async () => {
+;(async () => {
+  const input = getInput()
   await git.rebaseSyncBranches(input.behindBranchName, input.aheadBranchName)
-}
+})()
