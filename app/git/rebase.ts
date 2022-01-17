@@ -40,7 +40,7 @@ export const rebaseSyncBranches = async (
     )
   }
 
-  await checkout(behind)
+  await checkout(behind, repoUrl)
 
   const needToRebase = await areBranchesOutOfSync(behind, ahead)
   if (!needToRebase) {

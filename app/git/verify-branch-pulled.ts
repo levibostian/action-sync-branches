@@ -3,7 +3,7 @@ import { checkout } from "./checkout"
 
 // Help from: https://github.com/semantic-release/semantic-release/blob/971a5e0d16f1a32e117e9ce382a1618c8256d0d9/lib/git.js#L283-L297
 export const isBranchPulled = async (branch: string, repoUrl: string): Promise<boolean> => {
-  await checkout(branch)
+  await checkout(branch, repoUrl)
 
   const localCommitResult = await execCommand(`git rev-parse HEAD`, "")
   const localCommitHash = localCommitResult.stdout
