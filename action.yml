@@ -20,8 +20,10 @@ runs:
         fetch-depth: 0
     - name: Checkout and pull branches 
       run: |
-        git switch ${{ inputs.ahead }} && git pull 
-        git switch ${{ inputs.behind }} && git pull 
+        git switch ${{ inputs.ahead }} || (echo "${{ inputs.ahead }} does not exist. Exiting" && exit 0)
+        git pull 
+        git switch ${{ inputs.behind }} || (echo "${{ inputs.behind }} does not exist. Exiting" && exit 0)
+        git pull 
       shell: bash 
     - name: Sync branches via rebase 
       run: git rebase ${{ inputs.ahead }}
