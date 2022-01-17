@@ -5,14 +5,10 @@
     "test": "npx jest",
     "format": "npx prettier --write \"{app,tests}/**/*.ts\"",
     "lint": "npx eslint --fix --ext ts,js . && npx tsc --noEmit",
-    "compile": "npx ncc build app/index.ts -o dist"
+    "compile": "npx ncc build app/index.ts -o dist",
+    "prepare": "husky install"
   },
   "license": "MIT",
-  "husky": {
-    "hooks": {
-      "pre-commit": "npm run lint && lint-staged"
-    }
-  },
   "lint-staged": {
     "*.{ts,js,json,css,md}": [
       "npm run format"
