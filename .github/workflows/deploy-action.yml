@@ -1,4 +1,4 @@
-name: Deployment 
+name: Deploy action 
 on:
   push:
     branches:
@@ -8,9 +8,7 @@ on:
 
 jobs:
   deploy:
-    name: Deploy git tags
-    # skip if '[skip ci]' exists in commit message 
-    if: ${{ !contains(format('{0} {1}', github.event.head_commit.message, github.event.pull_request.title), '[skip ci]') }}
+    name: Deploy git tag
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2

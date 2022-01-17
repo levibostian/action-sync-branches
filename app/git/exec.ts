@@ -7,8 +7,8 @@ export const execCommand = async (command: string): Promise<{ stdout: string; st
   log.verbose(`Running: ${command}\n`)
   const { stdout, stderr } = await exec(command)
 
-  log.debug(`STDOUT: ${stdout}`)
-  log.debug(`STDERR: ${stderr}`)
+  log.verbose(`STDOUT: ${stdout}`)
+  log.verbose(`STDERR: ${stderr}`)
 
   return { stdout, stderr }
 }

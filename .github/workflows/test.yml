@@ -1,21 +1,10 @@
-name: Test
-# only run on PRs and when push a commit on a branch that we don't deploy on. 
-on: 
-  push:    
-    branches:
-      - '*' # because we use codecov, we want to have tests run on all branches to generate a report on it. 
-    tags-ignore: # Don't run tests on tags as tags are made off of main branch. 
-      - '*'
-  pull_request: # Run on all PRs. 
-    branches:
-      - '*'
+name: Tests
+on: [push, pull_request]
 
 jobs:
   test:
-    name: Test 
+    name: Run node tests
     runs-on: ubuntu-latest
-    # skip if '[skip ci]' exists in commit message 
-    if: ${{ !contains(format('{0} {1}', github.event.head_commit.message, github.event.pull_request.title), '[skip ci]') }}
     steps:
       - uses: actions/checkout@v2
       - name: Read .nvmrc
@@ -26,13 +15,13 @@ jobs:
         with:
           node-version: '${{ steps.nvm.outputs.NODE_VERSION }}'
       - name: Install dependencies
-        run: npm ci             
+        run: npm ci   
+      - name: Test can compile action 
+        run: npm run compile          
       - name: Run tests 
         run:  npm run test
-      - name: Compile action before testing it 
-        run: npm run compile
-      # Thanks: https://github.com/actions/typescript-action/blob/b4f07da86601110b682c6f45ff575f5fbd0f8cdf/.github/workflows/test.yml#L18      
-      - name: Test Action
-        uses: ./ 
-        with:
-          text: "Sample input text"
+      # # Thanks: https://github.com/actions/typescript-action/blob/b4f07da86601110b682c6f45ff575f5fbd0f8cdf/.github/workflows/test.yml#L18      
+      # - name: Test Action
+      #   uses: ./ 
+      #   with:
+      #     text: "Sample input text"
