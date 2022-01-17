@@ -16,6 +16,8 @@ runs:
   steps:
     - name: Checkout project code 
       uses: actions/checkout@v2
+      with: 
+        fetch-depth: 0
     - name: Checkout and pull branches 
       run: |
         git switch ${{ inputs.ahead }} && git pull 
