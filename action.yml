@@ -8,6 +8,9 @@ inputs: # https://docs.github.com/en/actions/creating-actions/metadata-syntax-fo
   behind:
     description: "Branch that is currently behind of the other and needs to be synced."
     required: true
+  githubToken:
+    description: "Personal access token for GitHub for user account that has push access to repository."
+    required: true
 runs:
   using: "node16"
   main: "dist/index.js"
