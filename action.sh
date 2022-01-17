@@ -2,13 +2,13 @@ AHEAD="$1"
 BEHIND="$2"
 
 # if git switch unsuccessful, it's because the branch does not exist. exit 0 indicating that the action will simply ignore request. 
-if [ $(git switch $AHEAD) -ne 0 ]; then
+if [[ $(git switch $AHEAD) -ne 0 ]]; then
     echo "Branch $AHEAD does not exist on remote. Looks like there is nothing for me to sync."
     exit 0 
 fi
 git pull 
 
-if [ $(git switch $BEHIND) -ne 0 ]; then
+if [[ $(git switch $BEHIND) -ne 0 ]]; then
     echo "Branch $BEHIND does not exist on remote. Looks like there is nothing for me to sync."
     exit 0 
 fi
