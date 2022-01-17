@@ -1,6 +1,7 @@
-import { checkoutAndPull } from "./pull"
+import { checkout } from "./checkout"
 import { execCommand } from "./exec"
 import { push } from "./push"
+import { isBranchPulled } from "./verify-branch-pulled"
 import * as log from "../log"
 
 export const areBranchesOutOfSync = async (behind: string, ahead: string): Promise<boolean> => {
@@ -31,8 +32,15 @@ export const rebaseSyncBranches = async (
   ahead: string,
   repoUrl: string
 ): Promise<void> => {
-  await checkoutAndPull(ahead, repoUrl)
-  await checkoutAndPull(behind, repoUrl)
+  const behindIsUpToDate = await isBranchPulled(behind, repoUrl)
+  const aheadIsUpToDate = await isBranchPulled(ahead, repoUrl)
+  if (!behindIsUpToDate || !aheadIsUpToDate) {
+    throw new Error(
+      "There are commits pushed to branches in remote not available locally. Therefore, I will not try to perform a sync."
+    )
+  }
+
+  await checkout(behind)
 
   const needToRebase = await areBranchesOutOfSync(behind, ahead)
   if (!needToRebase) {
