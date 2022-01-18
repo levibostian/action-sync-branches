@@ -1,7 +1,7 @@
 AHEAD="$1"
 BEHIND="$2"
 
-GREEN="\e[31m"
+GREEN="\e[32m"
 BLUE="\e[34m"
 NO_COLOR="\e[0m"
 RED="\e[31m"
@@ -20,6 +20,15 @@ end_log_group() {
     echo "::endgroup::"
 }
 
+log_then_exit() {
+    # end log group so error message shows up not in a group. 
+    end_log_group
+
+    log "$2"
+
+    exit $1
+}
+
 checkout_and_pull() {
     log "${NO_COLOR}Checking out branch $1"
 
@@ -27,8 +36,9 @@ checkout_and_pull() {
     if git switch $1; then
         log "${GREEN}Successfully checked out $1"
     else 
-        log "${YELLOW}Branch $1 does not exist on remote. Looks like there is nothing for me to sync."
-        exit 0 
+        ERR_MESSAGE="${YELLOW}Branch $1 does not exist on remote. Looks like there is nothing for me to sync."
+        
+        log_then_exit 0 "$ERR_MESSAGE" 
     fi
 
     log "${GREEN}Successful checkout of branch $1. Pulling branch now."
@@ -38,10 +48,11 @@ checkout_and_pull() {
 assert_rebase_successful() {
     # git log <branchX>..<branchY> gives you list of commits that are different between the two. If output empty, rebase was successful 
     if [[ $( git log $BEHIND..$AHEAD ) ]]; then 
-        log "${RED}Rebase not successful. There are commits that are in one of the branches that does not exist on the other."
-        log "${RED}You will need to fix this problem manually yourself by running git commands on your local computer and pushing your changes to the git repository."
-        log "${RED}I tried to run 'git rebase' commands for you without success. Perhaps you need to run 'git merge' commands?"
-        exit 1
+        ERR_MESSAGE="Rebase not successful. There are commits that are in one of the branches that does not exist on the other.
+You will need to fix this problem manually yourself by running git commands on your local computer and pushing your changes to the git repository.
+I tried to run 'git rebase' commands for you without success. Perhaps you need to run 'git merge' commands?"
+
+        log_then_exit 1 "${RED}${ERR_MESSAGE}"
     else 
         log "${GREEN}Rebase successful"
     fi 
