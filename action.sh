@@ -11,6 +11,11 @@ log() {
     echo -e "[action-sync-branches] $1"
 }
 
+start_log_group() {
+    echo -e "\n"
+    echo -e "::group::$1"
+}
+
 end_log_group() {
     echo "::endgroup::"
 }
@@ -43,22 +48,20 @@ assert_rebase_successful() {
 }
 
 
-log "::group::${BLUE}Checking out and pulling branches $AHEAD and $BEHIND to prepare to sync"
+start_log_group "${BLUE}Checking out and pulling branches $AHEAD and $BEHIND to prepare to sync"
 checkout_and_pull $AHEAD 
 checkout_and_pull $BEHIND
 end_log_group
 
-echo -e "\n"
-log "::group::${BLUE}Rebasing $AHEAD commits into $BEHIND so the two branches contain the same commits as one another."
+start_log_group "${BLUE}Rebasing $AHEAD commits into $BEHIND so the two branches contain the same commits as one another."
 git rebase $AHEAD
 end_log_group
 
-echo -e "\n"
-log "::group::${BLUE}Checking if rebase was successful..."
+start_log_group "${BLUE}Checking if rebase was successful..."
 assert_rebase_successful
 end_log_group
 
-echo -e "\n"
-log "::group::${BLUE}Sync operation successful. Pushing the changes..."
+
+start_log_group "${BLUE}Sync operation successful. Pushing the changes..."
 git push 
 end_log_group
