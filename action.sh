@@ -2,6 +2,8 @@ AHEAD="$1"
 BEHIND="$2"
 
 checkout_and_pull() {
+    echo "Checking out branch $1"
+
     # if git switch unsuccessful, it's because the branch does not exist. exit 0 indicating that the action will simply ignore request. 
     if git switch $1; then
         echo "Successfully checked out $1"
@@ -9,6 +11,8 @@ checkout_and_pull() {
         echo "Branch $1 does not exist on remote. Looks like there is nothing for me to sync."
         exit 0 
     fi
+
+    echo "Successful checkout of branch $1. Pulling branch now."
     git pull 
 }
 
@@ -24,11 +28,23 @@ assert_rebase_successful() {
     fi 
 }
 
+
+echo "::group::Checking out and pulling branches $AHEAD and $BEHIND to prepare to sync"
 checkout_and_pull $AHEAD 
 checkout_and_pull $BEHIND
+echo "::endgroup::"
 
+echo "\n"
+echo "::group::Rebasing $AHEAD commits into $BEHIND so the two branches contain the same commits as one another."
 git rebase $AHEAD
+echo "::endgroup::"
 
+echo "\n"
+echo "::group::Checking if rebase was successful..."
 assert_rebase_successful
+echo "::endgroup::"
 
+echo "\n"
+echo "::group::Sync operation successful. Pushing the changes..."
 git push 
+echo "::endgroup::"
