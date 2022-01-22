@@ -6,7 +6,7 @@ inputs: # https://docs.github.com/en/actions/creating-actions/metadata-syntax-fo
     description: "Branch that has commits in it that are not in the *behind* branch that you want to copy over."
     required: true
   behind:
-    description: "Branch that you want to copy commits *into*. This branch is *behind* the *ahead* branch."
+    description: "Branch that you want to copy commits *into*. This branch is missing commits that are in *ahead* branch"
     required: true
   githubToken:
     description: "GitHub personal access token for a GitHub account that has push access to the repository."

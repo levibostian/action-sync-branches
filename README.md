@@ -33,12 +33,13 @@ jobs:
 ```
 
 The action comes with the following inputs:
-* `behind` (required) - this is the branch that you want to copy commits *into*. This branch is *behind* the `ahead` branch. 
+* `behind` (required) - this is the branch that you want to copy commits *into*. This branch is missing commits that are in *ahead* branch. 
 * `ahead` (required) - the branch that has commits in it that are not in the `behind` branch that you want to copy over. 
 * `githubToken` (required) - a [GitHub personal access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token) for a GitHub account that has push access to the repository. 
 * `skipUnlessPush` (optional, default `"true"`) - Skip running this action unless this action is triggered by a push to the `ahead` branch. Prevents this action from running when not necessary. 
 
 > Note: If either `behind` or `ahead` branches do not exist in the repo when the action runs, the action will simply stop running and ignore the request to sync. 
+> Note: This action copies over commits in one direction. Copies commits from the `ahead` branch into the `behind` branch. If you have commits in `behind` that need to be copied into `ahead`, then you need to run this action twice where you set `behind: X, ahead: Y` and `behind: Y, ahead: X`. 
 
 # How does this action work? 
 
@@ -48,7 +49,7 @@ If we look at the git history of the 2 branches, it might look like this:
 
 [![diagram showing a git branch beta 3 commits ahead of a branch develop](https://mermaid.ink/img/eyJjb2RlIjoiZmxvd2NoYXJ0IFREXG5cbkFbZ2l0IGNvbW1pdDogQ3JlYXRlIGZlYXR1cmUgdG8gZWRpdCBwcm9maWxlXSAtLT58Z2l0IGJyYW5jaDogYmV0YXwgQihEZXZlbG9wbWVudCBjb21taXQ6IDxicj4gMS4wLjAtYmV0YS4xKVxuXG5BIC0tPnxnaXQgYnJhbmNoOiBkZXZlbG9wfCBDKGdpdCBjb21taXQ6IENyZWF0ZSBmZWF0dXJlIGVkaXQgZW1haWwgYWRkcmVzcylcbkMgLS0-IEQoZ2l0IGNvbW1pdDogRWRpdCBkb2NzIHRvIGV4cGxhaW4gZWRpdGluZyBlbWFpbCBhZGRyZXNzKVxuXG5CIC0tPnxXZSBmb3VuZCBhIGJ1ZyF8IEUoZ2l0IGNvbW1pdDogQnVnIGZpeCBmb3IgZWRpdGluZyBwcm9maWxlKVxuRSAtLT4gRihEZXZlbG9wbWVudCBjb21taXQ6IDxicj4gMS4wLjAtYmV0YS4yKSIsIm1lcm1haWQiOnsidGhlbWUiOiJkYXJrIn0sInVwZGF0ZUVkaXRvciI6ZmFsc2UsImF1dG9TeW5jIjp0cnVlLCJ1cGRhdGVEaWFncmFtIjpmYWxzZX0)](https://mermaid-js.github.io/mermaid-live-editor/edit/#eyJjb2RlIjoiZmxvd2NoYXJ0IFREXG5cbkFbZ2l0IGNvbW1pdDogQ3JlYXRlIGZlYXR1cmUgdG8gZWRpdCBwcm9maWxlXSAtLT58Z2l0IGJyYW5jaDogYmV0YXwgQihEZXZlbG9wbWVudCBjb21taXQ6IDxicj4gMS4wLjAtYmV0YS4xKVxuXG5BIC0tPnxnaXQgYnJhbmNoOiBkZXZlbG9wfCBDKGdpdCBjb21taXQ6IENyZWF0ZSBmZWF0dXJlIGVkaXQgZW1haWwgYWRkcmVzcylcbkMgLS0-IEQoZ2l0IGNvbW1pdDogRWRpdCBkb2NzIHRvIGV4cGxhaW4gZWRpdGluZyBlbWFpbCBhZGRyZXNzKVxuXG5CIC0tPnxXZSBmb3VuZCBhIGJ1ZyF8IEUoZ2l0IGNvbW1pdDogQnVnIGZpeCBmb3IgZWRpdGluZyBwcm9maWxlKVxuRSAtLT4gRihEZXZlbG9wbWVudCBjb21taXQ6IDxicj4gMS4wLjAtYmV0YS4yKSIsIm1lcm1haWQiOiJ7XG4gIFwidGhlbWVcIjogXCJkYXJrXCJcbn0iLCJ1cGRhdGVFZGl0b3IiOmZhbHNlLCJhdXRvU3luYyI6dHJ1ZSwidXBkYXRlRGlhZ3JhbSI6ZmFsc2V9)
 
-Notice how branch `beta` is now 3 commits ahead of `develop`. The 3 unique commits in `beta` all need to be in the `develop` branch. However, the 2 commits that `develop` has that `beta` does not have is ok. Adding the ability to edit an email address will be deployed in a future release of our software.
+Notice how branch `beta` is now 3 commits ahead of `develop`. The 3 unique commits in `beta` all need to be in the `develop` branch. However, the 2 commits that `develop` has that `beta` does not have should not be copied over. Adding the ability to edit an email address will be deployed in a future release of our software.
 
 If we look at the git history of each branch, we will see something like this:
 
@@ -90,20 +91,9 @@ Notice how all of the git commit hashes in the 2 logs are all different *except*
 
 This action's job is to take all of the commits that are in the behind branch (in our exmple: `develop`) into the ahead branch (in our example: `beta`). There are a couple of ways for this action to accomplish this goal. It can run: `git checkout develop && git merge beta`. But there is a drawback to the command `git merge`. `merge` generates a new commit. This would mean that after `git merge` runs, the branch `develop` will contain *all* of the commits in the `beta` branch but *will also contain 1 commit that `beta` does not* have. This would mean that instead of `develop` and `beta` being synced together, `develop` is now 1 commit ahead. 
 
-To make the git commit history as clean as possible, this action instead runs the `git rebase` command. `git rebase` is different from `git merge` in that `rebase` does not create the 1 merge commit like `merge` does. Although `merge` is recommended to use for most scenarios because it is safer to run, this action tries it's best to be non-destructive to your git repository. 
+To make the git commit history as identical as possible, this action instead runs the `git rebase` command. `git rebase` is different from `git merge` in that `rebase` does not create the 1 merge commit like `merge` does. 
 
-In a nutshell, this action runs these commands:
-```bash
-git checkout <ahead>
-git pull
-git checkout <behind>
-git pull
-
-git rebase <ahead>
-
-git log <behind>..<ahead>
-git push
-```
+> Note: `git rebase` is a dangerous command that can make destructive changes to your git repository. That's why it's recommended to run `git merge` instead as it's safe and will not make these destructive changes. This action runs commands as safely as possible and if any command does not run as intended, it will fail to avoid making destructive changes to your repository. If you're going to use `git rebase` yourself manually, do so only if you know what you are doing!
 
 After the actions runs, when you look at the git commit history of each branch, you will see:
 
@@ -155,7 +145,7 @@ commit 11111
 
 [![](https://mermaid.ink/img/eyJjb2RlIjoiZmxvd2NoYXJ0IFREXG5cbkFbZ2l0IGNvbW1pdDogQ3JlYXRlIGZlYXR1cmUgdG8gZWRpdCBwcm9maWxlXSAtLT58Z2l0IGJyYW5jaDogZGV2ZWxvcCBhbmQgYmV0YXwgQihEZXZlbG9wbWVudCBjb21taXQ6IDxicj4gMS4wLjAtYmV0YS4xKVxuXG5CIC0tPiBDKGdpdCBjb21taXQ6IEJ1ZyBmaXggZm9yIGVkaXRpbmcgcHJvZmlsZSlcbkMgLS0-IEQoRGV2ZWxvcG1lbnQgY29tbWl0OiA8YnI-IDEuMC4wLWJldGEuMilcbkQgLS0-fGdpdCBicmFuY2g6IGRldmVsb3B8IEUoZ2l0IGNvbW1pdDogQ3JlYXRlIGZlYXR1cmUgZWRpdCBlbWFpbCBhZGRyZXNzKVxuRSAtLT4gSChnaXQgY29tbWl0OiBFZGl0IGRvY3MgdG8gZXhwbGFpbiBlZGl0aW5nIGVtYWlsIGFkZHJlc3MpXG4iLCJtZXJtYWlkIjp7InRoZW1lIjoiZGFyayJ9LCJ1cGRhdGVFZGl0b3IiOmZhbHNlLCJhdXRvU3luYyI6dHJ1ZSwidXBkYXRlRGlhZ3JhbSI6ZmFsc2V9)](https://mermaid-js.github.io/mermaid-live-editor/edit/#eyJjb2RlIjoiZmxvd2NoYXJ0IFREXG5cbkFbZ2l0IGNvbW1pdDogQ3JlYXRlIGZlYXR1cmUgdG8gZWRpdCBwcm9maWxlXSAtLT58Z2l0IGJyYW5jaDogZGV2ZWxvcCBhbmQgYmV0YXwgQihEZXZlbG9wbWVudCBjb21taXQ6IDxicj4gMS4wLjAtYmV0YS4xKVxuXG5CIC0tPiBDKGdpdCBjb21taXQ6IEJ1ZyBmaXggZm9yIGVkaXRpbmcgcHJvZmlsZSlcbkMgLS0-IEQoRGV2ZWxvcG1lbnQgY29tbWl0OiA8YnI-IDEuMC4wLWJldGEuMilcbkQgLS0-fGdpdCBicmFuY2g6IGRldmVsb3B8IEUoZ2l0IGNvbW1pdDogQ3JlYXRlIGZlYXR1cmUgZWRpdCBlbWFpbCBhZGRyZXNzKVxuRSAtLT4gSChnaXQgY29tbWl0OiBFZGl0IGRvY3MgdG8gZXhwbGFpbiBlZGl0aW5nIGVtYWlsIGFkZHJlc3MpXG4iLCJtZXJtYWlkIjoie1xuICBcInRoZW1lXCI6IFwiZGFya1wiXG59IiwidXBkYXRlRWRpdG9yIjpmYWxzZSwiYXV0b1N5bmMiOnRydWUsInVwZGF0ZURpYWdyYW0iOmZhbHNlfQ)
 
-The branch `develop` is ahead of branch `beta`, but now all of the git commits from `beta` have been copied into `develop`! 
+The branch `develop` is still ahead of branch `beta`, but now all of the git commits from `beta` have been copied into `develop`. That's the intended behavior of this action! 
 
 # Development 
 
