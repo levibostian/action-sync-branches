@@ -1,3 +1,16 @@
+# [1.0.0-beta.3](https://github.com/levibostian/action-sync-branches/compare/v1.0.0-beta.2...v1.0.0-beta.3) (2022-01-22)
+
+
+### Bug Fixes
+
+* add link to fix doc if action fails ([#24](https://github.com/levibostian/action-sync-branches/issues/24)) ([0f2a0fc](https://github.com/levibostian/action-sync-branches/commit/0f2a0fcc98996f16335fef4774a93dd3652778ca))
+* skip run unless push to ahead ([#22](https://github.com/levibostian/action-sync-branches/issues/22)) ([e416f86](https://github.com/levibostian/action-sync-branches/commit/e416f8685ef3d6de2b51fdeed2feaba6ddab2279))
+
+
+### Features
+
+* skip running if no push to ahead branch ([#21](https://github.com/levibostian/action-sync-branches/issues/21)) ([6ed1347](https://github.com/levibostian/action-sync-branches/commit/6ed1347fd08729f1ba05a09858974902f989cba7))
+
 # [1.0.0-beta.2](https://github.com/levibostian/action-sync-branches/compare/v1.0.0-beta.1...v1.0.0-beta.2) (2022-01-17)
 
 
