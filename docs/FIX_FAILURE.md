@@ -2,7 +2,7 @@
 
 Did you try running this action and you got an error `You will need to fix this problem manually yourself...`? Did you try running this action and for some reason it encountered an error? This document is for you. When this action fails to succeed, you will need to manually run `git` commands on your computer to manually fix the problem. 
 
-Before you get into fixing the problem, it's recommended that you [read the documentation on how this action works](README.md#how-does-this-action-work). This will help you understand better the context of your project and what this action attempted to do. 
+Before you get into fixing the problem, it's recommended that you [read the documentation on how this action works](/README.md#how-does-this-action-work). This will help you understand better the context of your project and what this action attempted to do. 
 
 Ok, now let's get into it. 
 
