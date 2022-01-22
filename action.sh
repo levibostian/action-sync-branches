@@ -47,7 +47,7 @@ checkout_and_pull() {
 
 assert_rebase_successful() {
     # git log <branchX>..<branchY> gives you list of commits that are different between the two. If output empty, rebase was successful 
-    if [[ $( git log $BEHIND..$AHEAD ) ]]; then 
+    if [[ $( git log $BEHIND..$AHEAD && git log $AHEAD..$BEHIND) ]]; then 
         ERR_MESSAGE="Rebase not successful. There are commits that are in one of the branches that does not exist on the other.
 You will need to fix this problem manually yourself by running git commands on your local computer and pushing your changes to the git repository.
 I tried to run 'git rebase' commands for you without success. Perhaps you need to run 'git merge' commands?"
