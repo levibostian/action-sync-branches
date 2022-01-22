@@ -1,3 +1,10 @@
+# [1.0.0-beta.4](https://github.com/levibostian/action-sync-branches/compare/v1.0.0-beta.3...v1.0.0-beta.4) (2022-01-22)
+
+
+### Bug Fixes
+
+* remove skipUnlessPush as it's unstable ([#25](https://github.com/levibostian/action-sync-branches/issues/25)) ([71fa635](https://github.com/levibostian/action-sync-branches/commit/71fa6353b8539e6eec6f6e46ea4815ceac64e113))
+
 # [1.0.0-beta.3](https://github.com/levibostian/action-sync-branches/compare/v1.0.0-beta.2...v1.0.0-beta.3) (2022-01-22)
 
 
