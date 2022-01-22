@@ -1,15 +1,15 @@
 name: "git sync branches"
-description: "Sync branches in a git repository with the goal of having the same commit history between the two."
+description: "GitHub Action to copy and push commits from one branch to another."
 author: "levibostian"
 inputs: # https://docs.github.com/en/actions/creating-actions/metadata-syntax-for-github-actions#inputs
   ahead:
-    description: "Branch that is currently ahead of the other in commit history"
+    description: "Branch that has commits in it that are not in the *behind* branch that you want to copy over."
     required: true
   behind:
-    description: "Branch that is currently behind of the other and needs to be synced."
+    description: "Branch that you want to copy commits *into*. This branch is missing commits that are in *ahead* branch"
     required: true
   githubToken:
-    description: "Personal access token for GitHub for user account that has push access to repository."
+    description: "GitHub personal access token for a GitHub account that has push access to the repository."
     required: true
   skipUnlessPush:
     description: "Skip running this action unless this action is triggered by a push to the ahead branch. Default: true"

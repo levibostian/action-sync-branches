@@ -1,60 +1,164 @@
-Latest (recommended) [![npm latest version](https://img.shields.io/npm/v/levibostian/action-node-blanky/latest.svg)](https://www.npmjs.com/package/levibostian/action-node-blanky)
-Beta: [![npm beta version](https://img.shields.io/npm/v/levibostian/action-node-blanky/beta.svg)](https://www.npmjs.com/package/levibostian/action-node-blanky)
-Alpha: [![npm alpha version](https://img.shields.io/npm/v/levibostian/action-node-blanky/alpha.svg)](https://www.npmjs.com/package/levibostian/action-node-blanky)
+![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/levibostian/action-sync-branches?label=latest%20stable%20release)
+![GitHub release (latest SemVer including pre-releases)](https://img.shields.io/github/v/release/levibostian/action-sync-branches?include_prereleases&label=latest%20pre-release%20version)
 
-# action-node-blanky
+# action-sync-branches
 
-Opinionated boilerplate used to make and deploy GitHub actions using node.
+GitHub Action to copy and push commits from one branch to another.
 
-# Features
+> Note: It's recommended to before you use this action, you feel comfortable with git, git branches, git merging, and git commit histories. Any automated tool that runs git commands for you should always be used with caution. 
 
-- Typescript
-- Jest tests
-- Continuous integration and continuous delivery
-  - Including convenient git tag updating. Example: When releasing v1.2.3, v1 will be created/updated to follow GitHub Action convention.
-  - Deployments will contain everything GitHub Actions requires including dependencies.
-- ESLint and Prettier
-- As slim as possible published Action to make your GitHub Action Workflow run ⚡ _fast_ ⚡. Dependencies are included in the release but only production related dependencies, not development. This means we don't need to check in out bulk `node_modules/` directory into our repo!
+# Why use this action? 
 
-When writing GitHub Actions, sometimes there are some inconveniences. This includes publishing `node_modules/` and compiled javascript. However, when we use a tool like Jest, this can be difficult because Jest can add _lots_ of dependencies to `node_modules/` making GitHub Actions that use our Action, slower. This project solves that problem by publishing git tags that are as small as possible to only include dependencies required by the Action without touching your development environment. Write code as you're used to. The deployment script will take care of the rest!
+* If you have, for example, a `beta` branch that you make beta deployments with. If there are bug fix commits pushed to this branch and you want to copy those bug fix commits over to your default branch of your repository (`main`, `develop`, `next`). 
+* If your CI server makes commits on your repository and you want to then copy those commits to another branch. 
 
-# Goals of this project
+# Getting started 
 
-- Contain configuration files to setup all tools I tend to use in my development flow.
-- Start with zero dependencies. Your Action contains the dependencies you need, no more.
+For the examples below, we are assuming that your git repository has it's default branch set to `develop` and you want to sync commits from the `beta` branch into `develop`.
 
-# Getting started
+```yml
+name: Sync branch beta with develop
 
-- Enable GitHub Actions for your repository.
-- If you have not done so already, create a GitHub account for bot purposes.
-- Add your bot account in the repository `/settings/access`.
-- Create secret `BOT_PUSH_TOKEN` with key being a GitHub personal access token with push permission so the bot can push to the repository (the bot will be making git tags and releases on repository).
+on: [push] # make sure that action will run on `push`
 
-# Notes
+jobs:
+  sync-branches:
+    name: Sync branches 
+    runs-on: ubuntu-latest # Action is tested with Linux and it's recommended to use Linux. 
+    steps:
+      - name: Copy commits in beta to develop branch
+        uses: levibostian/action-sync-branches@v1
+        with:
+          behind: develop
+          ahead: beta
+          githubToken: ${{ secrets.BOT_PUSH_TOKEN }}
+```
 
-## node version
+The action comes with the following inputs:
+* `behind` (required) - this is the branch that you want to copy commits *into*. This branch is missing commits that are in *ahead* branch. 
+* `ahead` (required) - the branch that has commits in it that are not in the `behind` branch that you want to copy over. 
+* `githubToken` (required) - a [GitHub personal access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token) for a GitHub account that has push access to the repository. 
+* `skipUnlessPush` (optional, default `"true"`) - Skip running this action unless this action is triggered by a push to the `ahead` branch. Prevents this action from running when not necessary. 
 
-Currently set to `node12`. This is because the `action.yml` node version is set to 12. When v14 releases on GitHub Actions, we can bump the node version.
+> Note: If either `behind` or `ahead` branches do not exist in the repo when the action runs, the action will simply stop running and ignore the request to sync. 
+> Note: This action copies over commits in one direction. Copies commits from the `ahead` branch into the `behind` branch. If you have commits in `behind` that need to be copied into `ahead`, then you need to run this action twice where you set `behind: X, ahead: Y` and `behind: Y, ahead: X`. 
 
-To update the node version, change...
+**Tip: If you run this action and the action failed to sync the branches, it might require you to manually fix the issue. See [the fix failure doc](docs/FIX_FAILURE.md) to learn how to manually fix failures when this action fails to succeed.**
 
-- `.nvmrc`
-- `tsconfig.json` > `extends` bump to node version.
-- `.eslintrc.json` > `ecmaVersion` to version of node supported. This is easy to find by going into `tsconfig` and find what `target` is set.
-- `action.yml` > `runs.using` change node version.
+# How does this action work? 
 
-# Development
+Let's say that you have a branch `beta` and `develop`. `beta` is a branch you use for the latest beta deployment of your project. `develop` is the default branch where all new features and fixes go into. 
 
-- `npm install`
+If we look at the git history of the 2 branches, it might look like this:
 
-- Find all the relevant tasks you need with: `npm run --tasks`
+[![diagram showing a git branch beta 3 commits ahead of a branch develop](https://mermaid.ink/img/eyJjb2RlIjoiZmxvd2NoYXJ0IFREXG5cbkFbZ2l0IGNvbW1pdDogQ3JlYXRlIGZlYXR1cmUgdG8gZWRpdCBwcm9maWxlXSAtLT58Z2l0IGJyYW5jaDogYmV0YXwgQihEZXZlbG9wbWVudCBjb21taXQ6IDxicj4gMS4wLjAtYmV0YS4xKVxuXG5BIC0tPnxnaXQgYnJhbmNoOiBkZXZlbG9wfCBDKGdpdCBjb21taXQ6IENyZWF0ZSBmZWF0dXJlIGVkaXQgZW1haWwgYWRkcmVzcylcbkMgLS0-IEQoZ2l0IGNvbW1pdDogRWRpdCBkb2NzIHRvIGV4cGxhaW4gZWRpdGluZyBlbWFpbCBhZGRyZXNzKVxuXG5CIC0tPnxXZSBmb3VuZCBhIGJ1ZyF8IEUoZ2l0IGNvbW1pdDogQnVnIGZpeCBmb3IgZWRpdGluZyBwcm9maWxlKVxuRSAtLT4gRihEZXZlbG9wbWVudCBjb21taXQ6IDxicj4gMS4wLjAtYmV0YS4yKSIsIm1lcm1haWQiOnsidGhlbWUiOiJkYXJrIn0sInVwZGF0ZUVkaXRvciI6ZmFsc2UsImF1dG9TeW5jIjp0cnVlLCJ1cGRhdGVEaWFncmFtIjpmYWxzZX0)](https://mermaid-js.github.io/mermaid-live-editor/edit/#eyJjb2RlIjoiZmxvd2NoYXJ0IFREXG5cbkFbZ2l0IGNvbW1pdDogQ3JlYXRlIGZlYXR1cmUgdG8gZWRpdCBwcm9maWxlXSAtLT58Z2l0IGJyYW5jaDogYmV0YXwgQihEZXZlbG9wbWVudCBjb21taXQ6IDxicj4gMS4wLjAtYmV0YS4xKVxuXG5BIC0tPnxnaXQgYnJhbmNoOiBkZXZlbG9wfCBDKGdpdCBjb21taXQ6IENyZWF0ZSBmZWF0dXJlIGVkaXQgZW1haWwgYWRkcmVzcylcbkMgLS0-IEQoZ2l0IGNvbW1pdDogRWRpdCBkb2NzIHRvIGV4cGxhaW4gZWRpdGluZyBlbWFpbCBhZGRyZXNzKVxuXG5CIC0tPnxXZSBmb3VuZCBhIGJ1ZyF8IEUoZ2l0IGNvbW1pdDogQnVnIGZpeCBmb3IgZWRpdGluZyBwcm9maWxlKVxuRSAtLT4gRihEZXZlbG9wbWVudCBjb21taXQ6IDxicj4gMS4wLjAtYmV0YS4yKSIsIm1lcm1haWQiOiJ7XG4gIFwidGhlbWVcIjogXCJkYXJrXCJcbn0iLCJ1cGRhdGVFZGl0b3IiOmZhbHNlLCJhdXRvU3luYyI6dHJ1ZSwidXBkYXRlRGlhZ3JhbSI6ZmFsc2V9)
+
+Notice how branch `beta` is now 3 commits ahead of `develop`. The 3 unique commits in `beta` all need to be in the `develop` branch. However, the 2 commits that `develop` has that `beta` does not have should not be copied over. Adding the ability to edit an email address will be deployed in a future release of our software.
+
+If we look at the git history of each branch, we will see something like this:
+
+```bash
+> git log beta
+commit 66666
+
+    deploy 1.0.0-beta.2
+
+commit 555555
+
+    fix bug with editing profile
+
+commit 44444
+
+    deploy 1.0.0-beta.1
+
+commit 11111
+
+    create feature to edit profile
+```
+
+```bash
+> git log develop
+commit 33333
+
+    create feature edit email address
+
+commit 22222
+
+    edit docs to explain editing email address
+
+commit 11111
+
+    create feature to edit profile
+```
+
+Notice how all of the git commit hashes in the 2 logs are all different *except* for the hash `11111`. This hash is the same since both of these branches originate from 1 commit where a feature was added to edit a profile. 
+
+This action's job is to take all of the commits that are in the behind branch (in our exmple: `develop`) into the ahead branch (in our example: `beta`). There are a couple of ways for this action to accomplish this goal. It can run: `git checkout develop && git merge beta`. But there is a drawback to the command `git merge`. `merge` generates a new commit. This would mean that after `git merge` runs, the branch `develop` will contain *all* of the commits in the `beta` branch but *will also contain 1 commit that `beta` does not* have. This would mean that instead of `develop` and `beta` being synced together, `develop` is now 1 commit ahead. 
+
+To make the git commit history as identical as possible, this action instead runs the `git rebase` command. `git rebase` is different from `git merge` in that `rebase` does not create the 1 merge commit like `merge` does. 
+
+> Note: `git rebase` is a dangerous command that can make destructive changes to your git repository. That's why it's recommended to run `git merge` instead as it's safe and will not make these destructive changes. This action runs commands as safely as possible and if any command does not run as intended, it will fail to avoid making destructive changes to your repository. If you're going to use `git rebase` yourself manually, do so only if you know what you are doing!
+
+After the actions runs, when you look at the git commit history of each branch, you will see:
+
+```bash
+> git log beta
+commit 66666
+
+    deploy 1.0.0-beta.2
+
+commit 555555
+
+    fix bug with editing profile
+
+commit 44444
+
+    deploy 1.0.0-beta.1
+
+commit 11111
+
+    create feature to edit profile
+```
+
+```bash
+> git log develop
+commit 33333
+
+    create feature edit email address
+
+commit 22222
+
+    edit docs to explain editing email address
+
+commit 66666
+
+    deploy 1.0.0-beta.2
+
+commit 555555
+
+    fix bug with editing profile
+
+commit 44444
+
+    deploy 1.0.0-beta.1
+
+commit 11111
+
+    create feature to edit profile
+```
+
+[![](https://mermaid.ink/img/eyJjb2RlIjoiZmxvd2NoYXJ0IFREXG5cbkFbZ2l0IGNvbW1pdDogQ3JlYXRlIGZlYXR1cmUgdG8gZWRpdCBwcm9maWxlXSAtLT58Z2l0IGJyYW5jaDogZGV2ZWxvcCBhbmQgYmV0YXwgQihEZXZlbG9wbWVudCBjb21taXQ6IDxicj4gMS4wLjAtYmV0YS4xKVxuXG5CIC0tPiBDKGdpdCBjb21taXQ6IEJ1ZyBmaXggZm9yIGVkaXRpbmcgcHJvZmlsZSlcbkMgLS0-IEQoRGV2ZWxvcG1lbnQgY29tbWl0OiA8YnI-IDEuMC4wLWJldGEuMilcbkQgLS0-fGdpdCBicmFuY2g6IGRldmVsb3B8IEUoZ2l0IGNvbW1pdDogQ3JlYXRlIGZlYXR1cmUgZWRpdCBlbWFpbCBhZGRyZXNzKVxuRSAtLT4gSChnaXQgY29tbWl0OiBFZGl0IGRvY3MgdG8gZXhwbGFpbiBlZGl0aW5nIGVtYWlsIGFkZHJlc3MpXG4iLCJtZXJtYWlkIjp7InRoZW1lIjoiZGFyayJ9LCJ1cGRhdGVFZGl0b3IiOmZhbHNlLCJhdXRvU3luYyI6dHJ1ZSwidXBkYXRlRGlhZ3JhbSI6ZmFsc2V9)](https://mermaid-js.github.io/mermaid-live-editor/edit/#eyJjb2RlIjoiZmxvd2NoYXJ0IFREXG5cbkFbZ2l0IGNvbW1pdDogQ3JlYXRlIGZlYXR1cmUgdG8gZWRpdCBwcm9maWxlXSAtLT58Z2l0IGJyYW5jaDogZGV2ZWxvcCBhbmQgYmV0YXwgQihEZXZlbG9wbWVudCBjb21taXQ6IDxicj4gMS4wLjAtYmV0YS4xKVxuXG5CIC0tPiBDKGdpdCBjb21taXQ6IEJ1ZyBmaXggZm9yIGVkaXRpbmcgcHJvZmlsZSlcbkMgLS0-IEQoRGV2ZWxvcG1lbnQgY29tbWl0OiA8YnI-IDEuMC4wLWJldGEuMilcbkQgLS0-fGdpdCBicmFuY2g6IGRldmVsb3B8IEUoZ2l0IGNvbW1pdDogQ3JlYXRlIGZlYXR1cmUgZWRpdCBlbWFpbCBhZGRyZXNzKVxuRSAtLT4gSChnaXQgY29tbWl0OiBFZGl0IGRvY3MgdG8gZXhwbGFpbiBlZGl0aW5nIGVtYWlsIGFkZHJlc3MpXG4iLCJtZXJtYWlkIjoie1xuICBcInRoZW1lXCI6IFwiZGFya1wiXG59IiwidXBkYXRlRWRpdG9yIjpmYWxzZSwiYXV0b1N5bmMiOnRydWUsInVwZGF0ZURpYWdyYW0iOmZhbHNlfQ)
+
+The branch `develop` is still ahead of branch `beta`, but now all of the git commits from `beta` have been copied into `develop`. That's the intended behavior of this action! 
+
+# Development 
+
+This action is a [composite GitHub Action](https://docs.github.com/en/actions/creating-actions/creating-a-composite-action) mostly relying on bash scripts to run commands. This means there is nothing for you to install to create a development environment on your computer. However, this also means that testing the action is more difficult. To test this action, we rely on running the action on GitHub Actions. See `.github/workflows/test-action.yml` for an example of how we test this action. 
+
+All changes made to the code require making a pull request into `develop` branch with the title conforming to the [conventional commit format](https://www.conventionalcommits.org/).
 
 # Deployment
 
-This project is setup with continuous deployment. When you deploy to `main`, `beta`, or `alpha` branches we will make a deployment. GitHub Actions are all deployed by simply making a GitHub tag/release.
+Tags/releases are made automatically using [semantic-release](https://github.com/semantic-release/semantic-release) as long as our git commit messages are written in the [conventional commit format](https://www.conventionalcommits.org/). Just `git rebase ...` commits from `develop` into `alpha`, `beta`, or `main` to make a new deployment of the action. 
 
-Tags/releases are made automatically using [semantic-release](https://github.com/semantic-release/semantic-release) as long as our git commit messages are written in the [conventional commit format](https://www.conventionalcommits.org/).
 
-# Credits
-
-- Inspiration for how to do compiling and testing action came from [this repo](https://github.com/actions/typescript-action). Great bas to start with that I added my own twists to (this repo _is_ opinionated after all).

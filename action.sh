@@ -59,7 +59,7 @@ I tried to run 'git rebase' commands for you without success. Perhaps you need t
 }
 
 
-start_log_group "${BLUE}Checking out and pulling branches $AHEAD and $BEHIND to prepare to sync"
+start_log_group "${BLUE}Checking out and pulling branches $AHEAD (ahead) and $BEHIND (behind) to prepare to sync"
 checkout_and_pull $AHEAD 
 checkout_and_pull $BEHIND
 end_log_group
