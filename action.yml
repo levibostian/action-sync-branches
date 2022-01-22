@@ -19,7 +19,7 @@ runs:
   using: "composite"
   steps:
     - name: Checkout all branches and commits history 
-      if: ${{ inputs.skipUnlessPush }} == "true" && github.event_name == 'push' && github.event.ref == 'refs/heads/${{ inputs.ahead }}' 
+      if: github.event_name == 'push' && github.event.ref == 'refs/heads/${{ inputs.ahead }}'
       uses: actions/checkout@v2
       with: 
         fetch-depth: 0
