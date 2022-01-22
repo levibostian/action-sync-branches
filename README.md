@@ -5,6 +5,8 @@
 
 GitHub Action to copy and push commits from one branch to another.
 
+> Note: It's recommended to before you use this action, you feel comfortable with git, git branches, git merging, and git commit histories. Any automated tool that runs git commands for you should always be used with caution. 
+
 # Why use this action? 
 
 * If you have, for example, a `beta` branch that you make beta deployments with. If there are bug fix commits pushed to this branch and you want to copy those bug fix commits over to your default branch of your repository (`main`, `develop`, `next`). 
@@ -40,6 +42,8 @@ The action comes with the following inputs:
 
 > Note: If either `behind` or `ahead` branches do not exist in the repo when the action runs, the action will simply stop running and ignore the request to sync. 
 > Note: This action copies over commits in one direction. Copies commits from the `ahead` branch into the `behind` branch. If you have commits in `behind` that need to be copied into `ahead`, then you need to run this action twice where you set `behind: X, ahead: Y` and `behind: Y, ahead: X`. 
+
+**Tip: If you run this action and the action failed to sync the branches, it might require you to manually fix the issue. See [the fix failure doc](docs/FIX_FAILURE.md) to learn how to manually fix failures when this action fails to succeed.**
 
 # How does this action work? 
 

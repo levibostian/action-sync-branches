@@ -14,13 +14,17 @@ Let's say that you have a branch `beta` and contains commits that you want to co
 
 Notice how branch `beta` is now 3 commits ahead of `develop`. The 3 unique commits in `beta` all need to be in the `develop` branch. However, the 2 commits that `develop` has that `beta` does not have should not be copied over. Adding the ability to edit an email address will be deployed in a future release of our software.
 
+In this example, the branch `beta` is *ahead* in your project while `develop` is behind since we want to copy commits from `beta` into `develop`. Branch `beta` is the *ahead branch* and `develop` is the *behind branch*. 
+
+For all commands below in this document, replace `<behind>` with the branch that is behind and replace `<ahead>` with the branch that is ahead. If you are unsure what branch names to use, read the output from the GitHub Action when it failed. This action tries to be helpful by printing output such as `Checking out and pulling branches beta (ahead) and develop (behind) to prepare to sync` which tells you what branch is configured to be ahead and behind. 
+
 On your computer, run these commands:
 
 ```
 git fetch
-git switch beta
+git switch <ahead>
 git pull
-git switch develop
+git switch <behind>
 git pull
 ```
 
@@ -29,15 +33,13 @@ Make sure to replace `beta` with the branch that is *ahead* in your project and 
 Now, run: 
 
 ```
-# Replace `beta` with branch that's *ahead*. 
-git merge beta
+git merge <ahead>
 ```
 
 Now run:
 
 ```
-# Replace `beta` with ahead, `develop` with behind. 
-git log beta..develop
+git log <ahead>..<behind>
 ```
 
 You should see only 1 commit in the output. It will be a merge commit and the git commit message should look something like this:
@@ -49,11 +51,11 @@ Date:   Sat Jan 22 14:05:20 2022 -0600
     Merge branch 'beta'
 ```
 
-Lastly, push the `develop` (behind) branch:
+Lastly, push the behind branch:
 ```
 git push
 ```
 
-A good test to make sure that everything was done successfully is to view the branches of your repository on GitHub. Do this by opening up the URL: `https://github.com/levibostian/action-sync-branches/branches` (replacing `levibostian/action-sync-branches` with your GitHub repository). 
+Done! 
 
-![the ahead branch should be 1 commit behind and 0 commits ahead of the behind branch now](img/github_compare_branches.jpeg)
+Now, the next time that this action runs again, it should be successful because you manually fixed the issue here. 
