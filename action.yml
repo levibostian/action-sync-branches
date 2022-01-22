@@ -18,16 +18,20 @@ inputs: # https://docs.github.com/en/actions/creating-actions/metadata-syntax-fo
 runs:
   using: "composite"
   steps:
-    - run: echo 'Starting action --> git sync branches' 
-      if: ${{ github.event_name == 'push' && github.event.ref == 'refs/heads/inputs.ahead' }}
-      shell: bash 
+    - run: echo 'Starting action to copy commits from ${{ inputs.ahead }} into ${{ inputs.behind }}' 
+      id: should-run
+      if: ${{ !inputs.skipUnlessPush || (github.event_name == 'push' && github.event.ref == 'refs/heads/inputs.ahead') }}
+      shell: bash
+    - run: echo 'Skipping action until commits are pushed to ${{ inputs.ahead }}. Use option skipUnlessPush to change this behavior.'       
+      if: ${{ steps.should-run.conclusion != 'success' }}
+      shell: bash
     - name: Checkout all branches and commits history 
-      if: ${{ github.event_name == 'push' && github.event.ref == 'refs/heads/inputs.ahead' }}
+      if: ${{ steps.should-run.conclusion == 'success' }}
       uses: actions/checkout@v2
       with: 
         fetch-depth: 0
     - name: Sync branches via rebase 
-      if: ${{ github.event_name == 'push' && github.event.ref == 'refs/heads/inputs.ahead' }}
+      if: ${{ steps.should-run.conclusion == 'success' }}
       run: ${{ github.action_path }}/action.sh ${{ inputs.ahead }} ${{ inputs.behind }}
       shell: bash 
 
