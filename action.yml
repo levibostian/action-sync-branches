@@ -11,14 +11,20 @@ inputs: # https://docs.github.com/en/actions/creating-actions/metadata-syntax-fo
   githubToken:
     description: "Personal access token for GitHub for user account that has push access to repository."
     required: true
+  skipUnlessPush:
+    description: "Skip running this action unless this action is triggered by a push to the ahead branch. Default: true"
+    required: true
+    default: "true"
 runs:
   using: "composite"
   steps:
     - name: Checkout all branches and commits history 
+      if: ${{ inputs.skipUnlessPush }} == "true" && github.event_name == 'push' && github.event.ref == 'refs/heads/${{ inputs.ahead }}' 
       uses: actions/checkout@v2
       with: 
         fetch-depth: 0
     - name: Sync branches via rebase 
+      if: ${{ success() }} # skip running this step is previous steps were skipped or failed
       run: ${{ github.action_path }}/action.sh ${{ inputs.ahead }} ${{ inputs.behind }}
       shell: bash 
 
