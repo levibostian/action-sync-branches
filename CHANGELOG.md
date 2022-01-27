@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/levibostian/action-sync-branches/compare/v1.1.0...v1.2.0) (2022-01-27)
+
+
+### Features
+
+* make a pull request if fail to sync ([#30](https://github.com/levibostian/action-sync-branches/issues/30)) ([2550456](https://github.com/levibostian/action-sync-branches/commit/25504562ec3de218b05ebc6ae0e11544300dc08b))
+
 # [1.1.0](https://github.com/levibostian/action-sync-branches/compare/v1.0.0...v1.1.0) (2022-01-27)
 
 
