@@ -45,15 +45,12 @@ checkout_and_pull() {
     git pull 
 }
 
-assert_rebase_successful() {
-    # git log <branchX>..<branchY> gives you list of commits that are different between the two. If output empty, rebase was successful 
+assert_merge_successful() {
+    # git log <branchX>..<branchY> gives you list of commits that are different between the two. If output empty, merge was successful 
     if [[ $( git log $BEHIND..$AHEAD ) ]]; then 
-        ERR_MESSAGE="Rebase not successful. You will need to fix this problem manually yourself by running git commands on your local computer and pushing your changes to the git repository.
-Perhaps a simple git merge will fix the issue? Learn more on how to fix this issue: https://github.com/levibostian/action-sync-branches/blob/develop/docs/FIX_FAILURE.md"
-
-        log_then_exit 1 "${RED}${ERR_MESSAGE}"
+        log_then_exit 1 "${RED}There are commits that are in the $BEHIND branch that's not in $AHEAD after sync attempt. Something failed. You will need to manually fix the problem. Learn how: https://github.com/levibostian/action-sync-branches/blob/develop/docs/FIX_FAILURE.md"
     else 
-        log "${GREEN}Rebase successful"
+        log "${GREEN}Merge successful"
     fi 
 }
 
@@ -63,14 +60,17 @@ checkout_and_pull $AHEAD
 checkout_and_pull $BEHIND
 end_log_group
 
-start_log_group "${BLUE}Rebasing $AHEAD commits into $BEHIND so the two branches contain the same commits as one another."
-git rebase $AHEAD
+start_log_group "${BLUE}Merging $AHEAD commits into $BEHIND so the two branches contain the same commits as one another."
+if git merge --ff "$AHEAD" --message "Merge branch '$AHEAD' into $BEHIND"; then
+    log "${GREEN}Merge successful" 
+else 
+    log_then_exit 1 "${RED}Merge not successful. Maybe because of a merge conflict? You will need to fix this problem manually yourself by running git commands on your local computer and pushing your changes to the git repository. https://github.com/levibostian/action-sync-branches/blob/develop/docs/FIX_FAILURE.md"
+fi 
 end_log_group
 
-start_log_group "${BLUE}Checking if rebase was successful..."
-assert_rebase_successful
+start_log_group "${BLUE}Checking if merge was successful..."
+assert_merge_successful
 end_log_group
-
 
 start_log_group "${BLUE}Sync operation successful. Pushing the changes..."
 git push 
