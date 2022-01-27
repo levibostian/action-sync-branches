@@ -18,6 +18,10 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
+      # Fixes: https://github.com/semantic-release/git/issues/136
+      # because v1 tag in repo gets updated on each deployment. 
+      - name: Fix (would clobber existing tag)
+        run: git fetch -tp -f --all
       - name: Deploy via semantic release 
         uses: cycjimmy/semantic-release-action@v2
         with: 
