@@ -18,7 +18,7 @@ runs:
       uses: actions/checkout@v2
       with: 
         fetch-depth: 0
-    - name: Sync branches via rebase 
+    - name: Sync branches 
       run: ${{ github.action_path }}/action.sh ${{ inputs.ahead }} ${{ inputs.behind }}
       shell: bash 
 

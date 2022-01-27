@@ -28,13 +28,20 @@ git switch <behind>
 git pull
 ```
 
-Make sure to replace `beta` with the branch that is *ahead* in your project and replace `develop` with the branch that is *behind* in your project. If you are unsure what branch names to use, read the output from the GitHub Action. This action tries to be helpful by printing output such as `Checking out and pulling branches beta (ahead) and develop (behind) to prepare to sync` which tells you what branch is configured to be ahead and behind. 
-
 Now, run: 
 
 ```
 git merge <ahead>
 ```
+
+This command may fail saying there is a conflict:
+```
+CONFLICT (add/add): Merge conflict in b.txt
+Auto-merging b.txt
+Automatic merge failed; fix conflicts and then commit the result.
+```
+
+Fix these merge conflicts. 
 
 Now run:
 
@@ -42,7 +49,7 @@ Now run:
 git log <ahead>..<behind>
 ```
 
-You should see only 1 commit in the output. It will be a merge commit and the git commit message should look something like this:
+Either this command outputs nothing or only 1 commit in the output. It will be a merge commit and the git commit message should look something like this:
 ```
 commit ea95a65ec1c6fa005ca1750b3e2fca0cfebbf620 (HEAD -> develop)
 Merge: 1d0847f 6423cfa
@@ -57,5 +64,3 @@ git push
 ```
 
 Done! 
-
-Now, the next time that this action runs again, it should be successful because you manually fixed the issue here. 
