@@ -1,12 +1,18 @@
 # Fix failure of the action
 
-Did you try running this action and you got an error `You will need to fix this problem manually yourself...`? Did you try running this action and for some reason it encountered an error? This document is for you. When this action fails to succeed, you will need to manually run `git` commands on your computer to manually fix the problem. 
+Did you try running this action and you got an error `You will need to fix this problem manually yourself...`? Did you try running this action and for some reason it encountered an error? This document is for you. 
+
+# How to fix failures (short version)
+
+When this action fails to automatically sync the two branches, it will create a pull request to bring the failure to your attention and fix the issue. The failure more then likely is because of a git merge conflict when trying to merge branches. 
+
+Notice the pull request created in your GitHub repository and merge it. If you don't see a pull request, continue reading this document to learn how to fix it. 
+
+# How to fix failures (long verison)
 
 Before you get into fixing the problem, it's recommended that you [read the documentation on how this action works](/README.md#how-does-this-action-work). This will help you understand better the context of your project and what this action attempted to do. 
 
 Ok, now let's get into it. 
-
-# How to fix failures 
 
 Let's say that you have a branch `beta` and contains commits that you want to copy over to `develop`:
 

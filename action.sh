@@ -48,7 +48,7 @@ checkout_and_pull() {
 assert_merge_successful() {
     # git log <branchX>..<branchY> gives you list of commits that are different between the two. If output empty, merge was successful 
     if [[ $( git log $BEHIND..$AHEAD ) ]]; then 
-        log_then_exit 1 "${RED}There are commits that are in the $BEHIND branch that's not in $AHEAD after sync attempt. Something failed. You will need to manually fix the problem. Learn how: https://github.com/levibostian/action-sync-branches/blob/develop/docs/FIX_FAILURE.md"
+        log_then_exit 1 "${RED}There are commits that are in the $BEHIND branch that's not in $AHEAD after sync attempt. Automatically syncing the two branches has failed. You will need to manually fix the problem. Learn how: https://github.com/levibostian/action-sync-branches/blob/develop/docs/FIX_FAILURE.md"
     else 
         log "${GREEN}Merge successful"
     fi 
@@ -64,7 +64,7 @@ start_log_group "${BLUE}Merging $AHEAD commits into $BEHIND so the two branches 
 if git merge --ff "$AHEAD" --message "Merge branch '$AHEAD' into $BEHIND"; then
     log "${GREEN}Merge successful" 
 else 
-    log_then_exit 1 "${RED}Merge not successful. Maybe because of a merge conflict? You will need to fix this problem manually yourself by running git commands on your local computer and pushing your changes to the git repository. https://github.com/levibostian/action-sync-branches/blob/develop/docs/FIX_FAILURE.md"
+    log_then_exit 1 "${RED}Merge not successful. Maybe because of a merge conflict? Automatically syncing the two branches has failed. You will need to manually fix the problem. Learn how: https://github.com/levibostian/action-sync-branches/blob/develop/docs/FIX_FAILURE.md"
 fi 
 end_log_group
 
