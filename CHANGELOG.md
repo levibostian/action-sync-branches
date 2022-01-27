@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/levibostian/action-sync-branches/compare/v1.0.0...v1.1.0) (2022-01-27)
+
+
+### Features
+
+* use git merge to have more successful syncs ([#27](https://github.com/levibostian/action-sync-branches/issues/27)) ([5f08108](https://github.com/levibostian/action-sync-branches/commit/5f08108ae516a0ced89a9df17c959bf030deb60a))
+
 # 1.0.0 (2022-01-22)
 
 
