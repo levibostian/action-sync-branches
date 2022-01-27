@@ -21,6 +21,15 @@ runs:
     - name: Sync branches 
       run: ${{ github.action_path }}/action.sh ${{ inputs.ahead }} ${{ inputs.behind }}
       shell: bash 
+    - name: Open pull request if sync failed
+      if: ${{ failure() }} # run if previous step failed
+      uses: tretuna/sync-branches@1.4.0
+      with:
+        GITHUB_TOKEN: ${{ inputs.githubToken }}
+        FROM_BRANCH: ${{ inputs.ahead }}
+        TO_BRANCH: ${{ inputs.behind }}
+        PULL_REQUEST_TITLE: "Merge ${{ inputs.ahead }} into ${{ inputs.behind }}"
+        PULL_REQUEST_BODY: "Automatically syncing these 2 branches failed by the CI server. Merge this pull request manually instead."
 
 branding:
   icon: 'refresh-cw'  
