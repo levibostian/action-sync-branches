@@ -10,7 +10,7 @@ inputs: # https://docs.github.com/en/actions/creating-actions/metadata-syntax-fo
     required: true
   githubToken:
     description: "GitHub personal access token for a GitHub account that has push access to the repository."
-    required: true
+    default: ${{ github.token }}
 runs:
   using: "composite"
   steps:
