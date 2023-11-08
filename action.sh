@@ -1,3 +1,7 @@
+#!/bin/sh
+
+set -e
+
 AHEAD="$1"
 BEHIND="$2"
 
