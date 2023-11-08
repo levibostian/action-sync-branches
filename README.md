@@ -24,20 +24,21 @@ on: [push] # make sure that action will run on `push`
 jobs:
   sync-branches:
     name: Sync branches 
-    runs-on: ubuntu-latest # Action is tested with Linux and it's recommended to use Linux. 
+    runs-on: ubuntu-latest
+    permissions:
+      content: write # needed to push commits to git repository
     steps:
       - name: Copy commits in beta to develop branch
         uses: levibostian/action-sync-branches@v1
         with:
           behind: develop
           ahead: beta
-          githubToken: ${{ secrets.BOT_PUSH_TOKEN }}
 ```
 
 The action comes with the following inputs:
 * `behind` (required) - this is the branch that you want to copy commits *into*. This branch is missing commits that are in *ahead* branch. 
 * `ahead` (required) - the branch that has commits in it that are not in the `behind` branch that you want to copy over. 
-* `githubToken` (required) - a [GitHub personal access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token) for a GitHub account that has push access to the repository. 
+* `githubToken` (optional, defaults to `github.token`) - a [GitHub personal access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token) for a GitHub account that has `push` access to the repository. 
 
 > Note: If either `behind` or `ahead` branches do not exist in the repo when the action runs, the action will simply stop running and ignore the request to sync. 
 > Note: This action copies over commits in one direction. Copies commits from the `ahead` branch into the `behind` branch. If you have commits in `behind` that need to be copied into `ahead`, then you need to run this action twice where you set `behind: X, ahead: Y` and `behind: Y, ahead: X`. 
